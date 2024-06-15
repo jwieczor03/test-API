@@ -55,7 +55,9 @@ public class cardsTests {
 
         Response response = get("/cards");
         String name = response.jsonPath().getString("cards[0].name");
+        String id =response.jsonPath().getString("cards[0].multiverseid");
         assertThat(name, equalTo("Ancestor's Chosen"));
+        assertThat(id, equalTo("130550"));
 
     }
 
