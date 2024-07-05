@@ -1,4 +1,4 @@
-package com.jwieczor.test_api;
+package com.jwieczor.test_api.list_get_endpoints;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -7,8 +7,9 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 
-public class FormatsTests {
+public class TypesTests {
 
 
     @BeforeAll
@@ -17,17 +18,16 @@ public class FormatsTests {
     }
 
 
-
     @Test
-    public void testGetAllCards() {
+    public void testGetAllTypes() {
         Response response =
                 given()
                         .when()
-                        .get("/formats")
+                        .get("/types")
                         .then()
                         .statusCode(200)
                         .extract().response();
 
-        response.then().body("formats.size()", equalTo(23));
+        response.then().body("types.size()", equalTo(27));
     }
 }

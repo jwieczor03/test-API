@@ -1,4 +1,4 @@
-package com.jwieczor.test_api;
+package com.jwieczor.test_api.endpoints_with_querying;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -16,22 +16,20 @@ public class SetsTest {
         RestAssured.baseURI = "https://api.magicthegathering.io/v1";
     }
 
-
     @Test
-    public void testGetAllCards() {
-        Response response =
-            given()
-                    .when()
-                    .get("/sets")
-                    .then()
-                    .statusCode(200)
-                    .extract().response();
+    public void getAllSets() {
+        Response response = given()
+                .when()
+                .get("/sets")
+                .then()
+                .statusCode(200)
+                .extract().response();
 
         response.then().body("sets.size()", greaterThan(0));
     }
 
     @Test
-    public void wrongMethod() {
+    public void postSetsReturns405() {
         given()
                 .when()
                 .post("/sets")
@@ -39,202 +37,174 @@ public class SetsTest {
                 .statusCode(405);
     }
 
-//Poprawna paginacja
     @Test
-    public void testPagination() {
+    public void validPagination() {
         int page = 2;
-        int pagesize = 10;
+        int pageSize = 10;
 
-        Response response = RestAssured.given()
+        Response response = given()
                 .param("page", page)
-                .param("pageSize", pagesize)
+                .param("pageSize", pageSize)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(200);
-
-        response.then().body("sets.size()", equalTo(pagesize));
+        response.then().body("sets.size()", equalTo(pageSize));
     }
-// za duzy numer strony
-    @Test
-    public void testPaginationInvalidPageNumber() {
-        int page = 20000;
-        int pagesize = 10;
 
-        Response response = RestAssured.given()
+    @Test
+    public void paginationWithInvalidPageNumber() {
+        int page = 20000;
+        int pageSize = 10;
+
+        Response response = given()
                 .param("page", page)
-                .param("pageSize", pagesize)
+                .param("pageSize", pageSize)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(200);
-
         response.then().body("sets.size()", equalTo(0));
     }
 
-// zamiast liczby slowo
     @Test
-    public void testPaginationStringInstedOfNumber() {
-        String page = "hhahaha";
-        int pagesize = 10;
+    public void paginationWithStringAsPageNumber() {
+        String page = "invalid";
+        int pageSize = 10;
 
-        Response response = RestAssured.given()
+        Response response = given()
                 .param("page", page)
-                .param("pageSize", pagesize)
+                .param("pageSize", pageSize)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(400);
-
     }
 
-// Wielkosc strony zero
     @Test
-    public void testPaginationzeroAsPageSize() {
-        Integer page = 1;
-        int pagesize = 0;
+    public void paginationWithZeroPageSize() {
+        int page = 1;
+        int pageSize = 0;
 
-        Response response = RestAssured.given()
+        Response response = given()
                 .param("page", page)
-                .param("pageSize", pagesize)
+                .param("pageSize", pageSize)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(200);
-        response.then().body("sets.size()", equalTo(pagesize));
-
+        response.then().body("sets.size()", equalTo(pageSize));
     }
-// Duza wartosc wielkosci strony
-    @Test
-    public void testPaginationBigPageSize() {
-        Integer page = 1;
-        int pagesize = 1000000;
 
-        Response response = RestAssured.given()
+    @Test
+    public void paginationWithLargePageSize() {
+        int page = 1;
+        int pageSize = 1000000;
+
+        Response response = given()
                 .param("page", page)
-                .param("pageSize", pagesize)
+                .param("pageSize", pageSize)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(200);
-
     }
-// Slowo zamiast liczby w wielkosci strony
 
     @Test
-    public void testPaginationStringAsPageSize() {
-        Integer page = 1;
-        String pagesize = "hahahah";
+    public void paginationWithStringAsPageSize() {
+        int page = 1;
+        String pageSize = "invalid";
 
-        Response response = RestAssured.given()
+        Response response = given()
                 .param("page", page)
-                .param("pageSize", pagesize)
+                .param("pageSize", pageSize)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(400);
-
     }
 
     @Test
-    public void testPaginationNumberOfPageIsNull() {
+    public void paginationWithNullPageNumber() {
         Integer page = null;
-        Integer pagesize = 20;
+        int pageSize = 20;
 
-        Response response = RestAssured.given()
+        Response response = given()
                 .param("page", page)
-                .param("pageSize", pagesize)
+                .param("pageSize", pageSize)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(400);
-
     }
 
-
-
-
     @Test
-    public void testDatabaseQuery() {
+    public void searchSetByName() {
         String name = "Khans of Tarkir";
 
-        Response response = RestAssured.given()
+        Response response = given()
                 .param("name", name)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(200);
-
-        response.then().body("sets.name", hasItem("Khans of Tarkir"));
+        response.then().body("sets.name", hasItem(name));
     }
 
     @Test
-    public void testDatabaseQuery4() {
+    public void searchSetByNameAndBlock() {
         String name = "Khans of Tarkir";
         String block = "Khans of Tarkir";
 
-        Response response = RestAssured.given()
+        Response response = given()
                 .param("name", name)
                 .param("block", block)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(200);
-
-        response.then().body("sets.name", hasItem("Khans of Tarkir"));
-        response.then().body("sets.block", hasItem("Khans of Tarkir"));
+        response.then().body("sets.name", hasItem(name));
+        response.then().body("sets.block", hasItem(block));
     }
 
     @Test
-    public void testDatabaseQuery5() {
+    public void searchSetByBlock() {
         String block = "Khans of Tarkir";
 
-        Response response = RestAssured.given()
+        Response response = given()
                 .param("block", block)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(200);
-
-        response.then().body("sets.block", hasItem("Khans of Tarkir"));
+        response.then().body("sets.block", hasItem(block));
     }
 
     @Test
-    public void testDatabaseQuery2() {
+    public void searchSetWithNullNameAndCode() {
         String name = null;
         String code = null;
 
-        Response response = RestAssured.given()
+        Response response = given()
                 .param("name", name)
                 .param("code", code)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(200);
-        response.then().body("size()", greaterThan(0));
-
+        response.then().body("sets.size()", greaterThan(0));
     }
 
     @Test
-    public void testDatabaseQuery3() {
-        String name = "nazwak która nie istenije";
-        String code = null;
+    public void searchNonExistentSetName() {
+        String name = "nonexistent set name";
 
-        Response response = RestAssured.given()
+        Response response = given()
                 .param("name", name)
                 .when()
                 .get("/sets");
 
         response.then().statusCode(200);
         response.then().body("sets.size()", equalTo(0));
-
     }
-
-
-
-
-
-
-
-
 }

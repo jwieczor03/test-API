@@ -1,4 +1,4 @@
-package com.jwieczor.test_api;
+package com.jwieczor.test_api.list_get_endpoints;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -18,7 +18,7 @@ public class SupertypesTests {
 
 
     @Test
-    public void testGetAllCards() {
+    public void testGetAllSuperTypes() {
         Response response =
                 given()
                         .when()

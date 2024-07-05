@@ -1,5 +1,4 @@
-package com.jwieczor.test_api;
-
+package com.jwieczor.test_api.endpoints_with_querying;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -10,9 +9,7 @@ import static io.restassured.RestAssured.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-
-
-public class cardsTests {
+public class CardsTests {
 
     @BeforeAll
     public static void setup() {
@@ -20,7 +17,7 @@ public class cardsTests {
     }
 
     @Test
-    public void testGetAllCards() {
+    public void getAllCardsReturns200AndCorrectCount() {
         given()
                 .when()
                 .get("/cards")
@@ -30,7 +27,7 @@ public class cardsTests {
     }
 
     @Test
-    public void wrongMethod() {
+    public void postCardsReturns405() {
         given()
                 .when()
                 .post("/cards")
@@ -39,38 +36,21 @@ public class cardsTests {
     }
 
     @Test
-    public void checIfIsNotNull() {
-        Response response =
-            given()
-                    .when()
-                    .get("/cards")
-                    .then()
-                    .extract().response();
+    public void getAllCardsResponseNotNull() {
+        Response response = given()
+                .when()
+                .get("/cards")
+                .then()
+                .extract().response();
         response.then().body("size()", greaterThan(0));
-
     }
 
     @Test
-    public void checkFirstRecord() {
-
+    public void firstCardHasExpectedNameAndId() {
         Response response = get("/cards");
         String name = response.jsonPath().getString("cards[0].name");
-        String id =response.jsonPath().getString("cards[0].multiverseid");
+        String id = response.jsonPath().getString("cards[0].multiverseid");
         assertThat(name, equalTo("Ancestor's Chosen"));
         assertThat(id, equalTo("130550"));
-
     }
-
-
-
-
-
-
-
-
-
 }
-
-
-
-
